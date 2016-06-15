@@ -1,0 +1,24 @@
+{
+  "name": "cytoscape-hierarchical",
+  "description": "A Cytoscape.js extension for the hierarchical clustering algorithm",
+  "main": "cytoscape-hierarchical.js",
+  "dependencies": {
+    "cytoscape": "^2.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cytoscape.js-hierarchical.git"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "keywords": [
+    "cytoscape",
+    "cyext"
+  ],
+  "license": "MIT"
+}
