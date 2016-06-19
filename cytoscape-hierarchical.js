@@ -185,7 +185,7 @@
       var leftStr = buildDendrogram( root.left );
       var rightStr = buildDendrogram( root.right );
 
-      var node = cy.add({group:'nodes', data: {id: leftStr+rightStr}, position:{x:Math.random()*70,y: Math.random()*70}});
+      var node = cy.add({group:'nodes', data: {id: leftStr+rightStr}});
 
       cy.add({group:'edges', data: { source: leftStr, target: node.id() }});
       cy.add({group:'edges', data: { source: rightStr, target: node.id() }});

@@ -76,16 +76,7 @@
                         { data: { id: 'D' }, position: { x: 3, y: 4 } },
                         { data: { id: 'E' }, position: { x: 4, y: 4 } },
                         { data: { id: 'F' }, position: { x: 3, y: 3.5 } }
-                    ],
-
-                    layout: {
-                        name: 'preset',
-                        positions: function(node) {
-                            return { x: node.position('x')*100, y: node.position('y')*100 };
-                        },
-                        fit: true,
-                        padding: 40
-                    }
+                    ]
                 });
 
                 // Input parameters to hierarchical algorithm
@@ -107,6 +98,19 @@
                 for (var c = 0; c < clusters.length; c++) {
                     clusters[c].style( 'background-color', '#' + Math.floor(Math.random()*16777215).toString(16) );
                 }
+
+                cy.layout({
+                    name: 'breadthfirst',/*
+                     positions: function(node) {
+                     return { x: node.position('x')*100, y: node.position('y')*100 };
+                     },*/
+                    fit: true,
+                    directed: true,
+                    padding: 100,
+                    circle: false,
+                    avoidOverlap: true,
+                    maximalAdjustments: 10
+                } );
 
 			});
 		</script>
