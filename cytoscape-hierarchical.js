@@ -6,6 +6,7 @@
     distance: 'euclidean',
     linkage: 'single',
     threshold: 10,
+    mode: 'dendrogram',
     attributes: [
       function(node) {
         return node.position('x');
@@ -144,7 +145,7 @@
 
   var getAllChildren = function( root, arr, cy ) {
     if (root === undefined) {
-      return ;
+      return;
     }
     else if (root.value) {
       arr.push(root.value);
@@ -152,18 +153,28 @@
     else {
       getAllChildren( root.left , arr, cy );
       getAllChildren( root.right, arr, cy );
-
     }
-
   };
 
   var buildClustersFromTree = function( clusters, k, cy ) {
-    if (k === 1) {
+    var left, right, leaves;
+
+    if (k === 0) {
+      left = []; right = [];
+
+      getAllChildren( clusters.left, left, cy );
+      getAllChildren( clusters.right, right, cy );
+
+      leaves = left.concat(right);
+
+      return [ cy.collection(leaves) ];
+    }
+    else if (k === 1) {
       if ( clusters.value ) { // leaf node
         return [ cy.collection( clusters.value ) ];
       }
       else {
-        var left = [], right = [];
+        left = []; right = [];
 
         getAllChildren( clusters.left, left, cy );
         getAllChildren( clusters.right, right, cy );
@@ -172,8 +183,8 @@
       }
     }
     else {
-      var left = buildClustersFromTree( clusters.left, k - 1, cy );
-      var right = buildClustersFromTree( clusters.right, k - 1, cy);
+      left = buildClustersFromTree( clusters.left, k - 1, cy );
+      right = buildClustersFromTree( clusters.right, k - 1, cy);
 
       return left.concat(right);
     }
@@ -227,7 +238,7 @@
       merged = mergeClosest( clusters, index, dists, mins, opts, edges, cy );
     }
 
-    clusters = buildClustersFromTree( clusters[0], 3, cy );
+    clusters = buildClustersFromTree( clusters[0], 0, cy );
 
     return clusters;
   };
