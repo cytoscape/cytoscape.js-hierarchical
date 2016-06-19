@@ -16,6 +16,18 @@
     ]
   };
 
+  var printMatrix = function( M ) { // used for debugging purposes only
+    var n = M.length;
+    for(var i = 0; i < n; i++ ) {
+      var row = '';
+      for ( var j = 0; j < n; j++ ) {
+        row += Math.round(M[i][j]*100)/100 + ' ';
+      }
+      console.log(row);
+    }
+    console.log('');
+  };
+
   var setOptions = function( opts, options ) {
     for (var i in defaults) { opts[i] = defaults[i]; }
     for (var i in options)  { opts[i] = options[i];  }
@@ -62,8 +74,8 @@
       return false;
     }
 
-    var c1 = index[minKey];       // 2
-    var c2 = index[mins[minKey]]; // 5
+    var c1 = index[minKey];
+    var c2 = index[mins[minKey]];
 
     // Merge two closest clusters
     var merged = {
@@ -71,26 +83,24 @@
       key: c1.key
     };
 
-    clusters[c1.index] = merged;  // 2 => c1 + c2
-    clusters.splice(c2.index, 1); // remove cluster c2
+    clusters[c1.index] = merged;
+    clusters.splice(c2.index, 1);
 
-    index[c1.key] = merged;       // 2 => c1 + c2
+    index[c1.key] = merged;
 
     // Update distances with new merged cluster
-    var dist;
-    var cur;
     for ( var i = 0; i < clusters.length; i++ ) {
-      cur = clusters[i];
+      var cur = clusters[i];
 
       if ( c1.key === cur.key ) {
-        dist = Infinity;                                         // Example distance matrix from: http://home.deib.polimi.it/matteucc/Clustering/tutorial_html/hierarchical.html 
-      }                                                          // Single: among the 2 rows, for each entry pick the smaller one
-      else if ( opts.linkage === 'single' ) {                    //        col  0    1    2    3    4    5
-        dist = dists[c1.key][cur.key];                           // row 2  = { 887, 295, Inf, 754, 564, 138 }
-        if ( dists[c1.key][cur.key] > dists[c2.key][cur.key] ) { // ...
-          dist = dists[c2.key][cur.key];                         // row 5  = { 996, 400, 138, 869, 669, Inf }
-        }                                                        //
-      }                                                          // merged = { 877, 295, Inf, 754, 564 } <= 2 col/row merged into 1
+        dist = Infinity;
+      }
+      else if ( opts.linkage === 'single' ) {
+        dist = dists[c1.key][cur.key];
+        if ( dists[c1.key][cur.key] > dists[c2.key][cur.key] ) {
+          dist = dists[c2.key][cur.key];
+        }
+      }
       else if ( opts.linkage === 'complete' ) {
         dist = dists[c1.key][cur.key];
         if ( dists[c1.key][cur.key] < dists[c2.key][cur.key] ) {
@@ -133,6 +143,7 @@
   var hierarchical = function( options ){
     var cy    = this.cy();
     var nodes = this.nodes();
+    var edges = this.edges();
     var opts  = {};
 
     // Set parameters of algorithm: linkage type, distance metric, etc.
@@ -172,9 +183,9 @@
 
     // Find the closest pair of clusters and merge them into a single cluster.
     // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
-    var merged = mergeClosest( clusters, index, dists, mins, opts );
+    var merged = mergeClosest( clusters, index, dists, mins, opts, edges, cy );
     while ( merged ) {
-      merged = mergeClosest( clusters, index, dists, mins, opts );
+      merged = mergeClosest( clusters, index, dists, mins, opts, edges, cy );
     }
 
     var retClusters = new Array(clusters.length);
