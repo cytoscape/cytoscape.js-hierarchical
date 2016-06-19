@@ -92,7 +92,11 @@
                 var options = {
                     distance: "euclidean",
                     linkage: "single",
-                    threshold: 2000
+
+                    cutoff: 0,
+
+                    //threshold: 50,
+                    mode: 'dendrogram'
                 };
 
                 // Run hierarchical on graph nodes

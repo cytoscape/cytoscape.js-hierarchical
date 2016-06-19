@@ -6,7 +6,8 @@
     distance: 'euclidean',
     linkage: 'single',
     threshold: 10,
-    mode: 'dendrogram',
+    mode: 'non-dendrogram',
+    cutoff: 0,
     attributes: [
       function(node) {
         return node.position('x');
@@ -71,7 +72,8 @@
         min = dist;
       }
     }
-    if ( min >= opts.threshold ) {
+    if ((opts.mode !== 'dendrogram' && min >= opts.threshold) ||
+        (opts.mode === 'dendrogram' && clusters.length === 1)) {
       return false;
     }
 
@@ -79,12 +81,19 @@
     var c2 = index[mins[minKey]];
 
     // Merge two closest clusters
-    var merged = {
-      //value: c1.value.concat(c2.value),
-      left: c1,
-      right: c2,
-      key: c1.key
-    };
+    if (opts.mode === 'dendrogram') {
+      var merged = {
+        left: c1,
+        right: c2,
+        key: c1.key
+      };
+    }
+    else {
+      var merged = {
+        value: c1.value.concat(c2.value),
+        key: c1.key
+      };
+    }
 
     clusters[c1.index] = merged;
     clusters.splice(c2.index, 1);
@@ -114,7 +123,10 @@
         dist = (dists[c1.key][cur.key] * c1.size + dists[c2.key][cur.key] * c2.size) / (c1.size + c2.size);
       }
       else {
-        dist = distances[opts.distance]( cur.value, c1.value, opts.attributes );
+        if (opts.mode === 'dendrogram')
+          dist = distances[opts.distance]( cur.value, c1.value, opts.attributes );
+        else
+          dist = distances[opts.distance]( cur.value[0], c1.value[0], opts.attributes );
       }
 
       dists[c1.key][cur.key] = dists[cur.key][c1.key] = dist; // distance matrix is symmetric
@@ -183,7 +195,7 @@
       }
     }
     else {
-      left = buildClustersFromTree( clusters.left, k - 1, cy );
+      left  = buildClustersFromTree( clusters.left, k - 1, cy );
       right = buildClustersFromTree( clusters.right, k - 1, cy);
 
       return left.concat(right);
@@ -208,7 +220,7 @@
     // In agglomerative (bottom-up) clustering, each node starts as its own cluster
     for ( var n = 0; n < nodes.length; n++ ) {
       var cluster = {
-        value: nodes[n] ,
+        value: (opts.mode === 'dendrogram') ? nodes[n] : [ nodes[n] ],
         key:   n,
         index: n
       };
@@ -221,7 +233,10 @@
     // Initialize and calculate the distance between each pair of clusters
     for ( var i = 0; i < clusters.length; i++ ) {
       for ( var j = 0; j <= i; j++ ) {
-        var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value, clusters[j].value, opts.attributes );
+        if (opts.mode === 'dendrogram')
+          var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value, clusters[j].value, opts.attributes );
+        else
+          var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value[0], clusters[j].value[0], opts.attributes );
         dists[i][j] = dist;
         dists[j][i] = dist;
 
@@ -233,14 +248,26 @@
 
     // Find the closest pair of clusters and merge them into a single cluster.
     // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
-    var merged = mergeClosest( clusters, index, dists, mins, opts, edges, cy );
+    var merged = mergeClosest( clusters, index, dists, mins, opts );
     while ( merged ) {
-      merged = mergeClosest( clusters, index, dists, mins, opts, edges, cy );
+      merged = mergeClosest( clusters, index, dists, mins, opts );
     }
 
-    clusters = buildClustersFromTree( clusters[0], 0, cy );
+    if (opts.mode === 'dendrogram') {
+      var retClusters = buildClustersFromTree( clusters[0], opts.cutoff, cy );
+    }
+    else {
+      var retClusters = new Array(clusters.length);
+      clusters.forEach( function( cluster, i ) {
+        // Clean up meta data used for clustering
+        delete cluster.key;
+        delete cluster.index;
 
-    return clusters;
+        retClusters[i] = cy.collection( cluster.value );
+      });
+    }
+
+    return retClusters;
   };
 
   // registers the extension on a cytoscape lib ref
