@@ -156,47 +156,77 @@
   };
 
   var getAllChildren = function( root, arr, cy ) {
-    if (root === undefined) {
-      return;
-    }
-    else if (root.value) {
-      arr.push(root.value);
-    }
-    else {
-      getAllChildren( root.left , arr, cy );
-      getAllChildren( root.right, arr, cy );
+
+    if (root) {
+
+      if (root.value) {
+        arr.push(root.value);
+      }
+      else {
+        getAllChildren(root.left, arr, cy);
+        getAllChildren(root.right, arr, cy);
+      }
     }
   };
 
-  var buildClustersFromTree = function( clusters, k, cy ) {
+  var buildRoot = function( leaves, cy ) {
+
+    var str = '';
+    for(var i = 0; i < leaves.length; i++) {
+      str += leaves[i].id();
+    }
+    var node = cy.add({group:'nodes', data: {id: str}, position:{x:Math.random()*70,y: Math.random()*70}});
+  };
+
+  var buildDendrogram = function ( root ) {
+
+    if (root.left && root.right) {
+
+      var leftStr = buildDendrogram( root.left );
+      var rightStr = buildDendrogram( root.right );
+
+      var node = cy.add({group:'nodes', data: {id: leftStr+rightStr}, position:{x:Math.random()*70,y: Math.random()*70}});
+
+      cy.add({group:'edges', data: { source: leftStr, target: node.id() }});
+      cy.add({group:'edges', data: { source: rightStr, target: node.id() }});
+
+      return node.id();
+    }
+    else if (root.value) {
+      return root.value.id();
+    }
+
+  };
+
+  var buildClustersFromTree = function( root, k, cy ) {
     var left, right, leaves;
 
     if (k === 0) {
       left = []; right = [];
 
-      getAllChildren( clusters.left, left, cy );
-      getAllChildren( clusters.right, right, cy );
+      getAllChildren( root.left, left, cy );
+      getAllChildren( root.right, right, cy );
 
       leaves = left.concat(right);
 
       return [ cy.collection(leaves) ];
     }
     else if (k === 1) {
-      if ( clusters.value ) { // leaf node
-        return [ cy.collection( clusters.value ) ];
+      if ( root.value ) { // leaf node
+        return [ cy.collection( root.value ) ];
       }
       else {
         left = []; right = [];
 
-        getAllChildren( clusters.left, left, cy );
-        getAllChildren( clusters.right, right, cy );
+        getAllChildren( root.left, left, cy );
+        getAllChildren( root.right, right, cy );
 
         return [ cy.collection(left), cy.collection(right) ];
       }
     }
     else {
-      left  = buildClustersFromTree( clusters.left, k - 1, cy );
-      right = buildClustersFromTree( clusters.right, k - 1, cy);
+      left  = buildClustersFromTree( root.left, k - 1, cy );
+      right = buildClustersFromTree( root.right, k - 1, cy);
 
       return left.concat(right);
     }
@@ -205,7 +235,6 @@
   var hierarchical = function( options ){
     var cy    = this.cy();
     var nodes = this.nodes();
-    var edges = this.edges();
     var opts  = {};
 
     // Set parameters of algorithm: linkage type, distance metric, etc.
@@ -255,6 +284,9 @@
 
     if (opts.mode === 'dendrogram') {
       var retClusters = buildClustersFromTree( clusters[0], opts.cutoff, cy );
+
+      // Build dendrogram
+      buildDendrogram( clusters[0] );
     }
     else {
       var retClusters = new Array(clusters.length);

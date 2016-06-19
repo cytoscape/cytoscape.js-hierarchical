@@ -93,10 +93,11 @@
                     distance: "euclidean",
                     linkage: "single",
 
-                    cutoff: 0,
+                    mode: 'dendrogram',
+                    cutoff: 2
 
-                    //threshold: 50,
-                    mode: 'dendrogram'
+                    //mode: 'non-dendrogram',
+                    //threshold: 120
                 };
 
                 // Run hierarchical on graph nodes
