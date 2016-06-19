@@ -185,7 +185,7 @@
       var leftStr = buildDendrogram( root.left );
       var rightStr = buildDendrogram( root.right );
 
-      var node = cy.add({group:'nodes', data: {id: leftStr+rightStr}});
+      var node = cy.add({group:'nodes', data: {id: leftStr + ',' + rightStr}});
 
       cy.add({group:'edges', data: { source: leftStr, target: node.id() }});
       cy.add({group:'edges', data: { source: rightStr, target: node.id() }});
@@ -199,34 +199,40 @@
   };
 
   var buildClustersFromTree = function( root, k, cy ) {
-    var left, right, leaves;
+
+    if (!root)
+        return [];
+
+    var left = [], right = [], leaves = [];
 
     if (k === 0) {
-      left = []; right = [];
-
-      getAllChildren( root.left, left, cy );
-      getAllChildren( root.right, right, cy );
+      if (root.left)
+        getAllChildren( root.left, left, cy );
+      if (root.right)
+        getAllChildren( root.right, right, cy );
 
       leaves = left.concat(right);
-
       return [ cy.collection(leaves) ];
     }
     else if (k === 1) {
+
       if ( root.value ) { // leaf node
         return [ cy.collection( root.value ) ];
       }
       else {
-        left = []; right = [];
-
-        getAllChildren( root.left, left, cy );
-        getAllChildren( root.right, right, cy );
+        if (root.left)
+          getAllChildren( root.left, left, cy );
+        if (root.right)
+          getAllChildren( root.right, right, cy );
 
         return [ cy.collection(left), cy.collection(right) ];
       }
     }
     else {
-      left  = buildClustersFromTree( root.left, k - 1, cy );
-      right = buildClustersFromTree( root.right, k - 1, cy);
+      if (root.left)
+        left  = buildClustersFromTree( root.left, k - 1, cy );
+      if (root.right)
+        right = buildClustersFromTree( root.right, k - 1, cy);
 
       return left.concat(right);
     }
