@@ -79,7 +79,9 @@
 
     // Merge two closest clusters
     var merged = {
-      value: c1.value.concat(c2.value),
+      //value: c1.value.concat(c2.value),
+      left: c1,
+      right: c2,
       key: c1.key
     };
 
@@ -111,7 +113,7 @@
         dist = (dists[c1.key][cur.key] * c1.size + dists[c2.key][cur.key] * c2.size) / (c1.size + c2.size);
       }
       else {
-        dist = distances[opts.distance]( cur.value[0], c1.value[0], opts.attributes );
+        dist = distances[opts.distance]( cur.value, c1.value, opts.attributes );
       }
 
       dists[c1.key][cur.key] = dists[cur.key][c1.key] = dist; // distance matrix is symmetric
@@ -140,6 +142,43 @@
     return true;
   };
 
+  var getAllChildren = function( root, arr, cy ) {
+    if (root === undefined) {
+      return ;
+    }
+    else if (root.value) {
+      arr.push(root.value);
+    }
+    else {
+      getAllChildren( root.left , arr, cy );
+      getAllChildren( root.right, arr, cy );
+
+    }
+
+  };
+
+  var buildClustersFromTree = function( clusters, k, cy ) {
+    if (k === 1) {
+      if ( clusters.value ) { // leaf node
+        return [ cy.collection( clusters.value ) ];
+      }
+      else {
+        var left = [], right = [];
+
+        getAllChildren( clusters.left, left, cy );
+        getAllChildren( clusters.right, right, cy );
+
+        return [ cy.collection(left), cy.collection(right) ];
+      }
+    }
+    else {
+      var left = buildClustersFromTree( clusters.left, k - 1, cy );
+      var right = buildClustersFromTree( clusters.right, k - 1, cy);
+
+      return left.concat(right);
+    }
+  };
+
   var hierarchical = function( options ){
     var cy    = this.cy();
     var nodes = this.nodes();
@@ -158,7 +197,7 @@
     // In agglomerative (bottom-up) clustering, each node starts as its own cluster
     for ( var n = 0; n < nodes.length; n++ ) {
       var cluster = {
-        value: [ nodes[n] ],
+        value: nodes[n] ,
         key:   n,
         index: n
       };
@@ -171,7 +210,7 @@
     // Initialize and calculate the distance between each pair of clusters
     for ( var i = 0; i < clusters.length; i++ ) {
       for ( var j = 0; j <= i; j++ ) {
-        var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value[0], clusters[j].value[0], opts.attributes );
+        var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value, clusters[j].value, opts.attributes );
         dists[i][j] = dist;
         dists[j][i] = dist;
 
@@ -188,16 +227,9 @@
       merged = mergeClosest( clusters, index, dists, mins, opts, edges, cy );
     }
 
-    var retClusters = new Array(clusters.length);
-    clusters.forEach( function( cluster, i ) {
-      // Clean up meta data used for clustering
-      delete cluster.key;
-      delete cluster.index;
+    clusters = buildClustersFromTree( clusters[0], 3, cy );
 
-      retClusters[i] = cy.collection( cluster.value );
-    });
-
-    return retClusters;
+    return clusters;
   };
 
   // registers the extension on a cytoscape lib ref
