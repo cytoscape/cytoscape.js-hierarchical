@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cytoscape.js-hierarchical.git"
+    "url": "https://github.com/cytoscape/cytoscape.js-hierarchical.git"
   },
   "keywords": [
     "cytoscape",
@@ -19,9 +19,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cytoscape.js-hierarchical/issues"
+    "url": "https://github.com/cytoscape/cytoscape.js-hierarchical/issues"
   },
-  "homepage": "https://github.com/cytoscape.js-hierarchical",
+  "homepage": "https://github.com/cytoscape/cytoscape.js-hierarchical",
   "devDependencies": {
     "gulp": "^3.8.8",
     "gulp-jshint": "^1.8.5",
