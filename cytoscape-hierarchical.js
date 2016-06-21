@@ -6,7 +6,7 @@
     distance: 'euclidean',
     linkage: 'single',
     threshold: 10,
-    mode: 'non-dendrogram',
+    mode: 'regular',
     cutoff: 0,
     attributes: [
       function(node) {
@@ -16,18 +16,6 @@
         return node.position('y');
       }
     ]
-  };
-
-  var printMatrix = function( M ) { // used for debugging purposes only
-    var n = M.length;
-    for(var i = 0; i < n; i++ ) {
-      var row = '';
-      for ( var j = 0; j < n; j++ ) {
-        row += Math.round(M[i][j]*100)/100 + ' ';
-      }
-      console.log(row);
-    }
-    console.log('');
   };
 
   var setOptions = function( opts, options ) {
@@ -72,8 +60,8 @@
         min = dist;
       }
     }
-    if ((opts.mode !== 'dendrogram' && min >= opts.threshold) ||
-        (opts.mode === 'dendrogram' && clusters.length === 1)) {
+    if ( (opts.mode === 'regular'    && min >= opts.threshold) ||
+         (opts.mode === 'dendrogram' && clusters.length === 1) ) {
       return false;
     }
 
@@ -81,7 +69,7 @@
     var c2 = index[mins[minKey]];
 
     // Merge two closest clusters
-    if (opts.mode === 'dendrogram') {
+    if ( opts.mode === 'dendrogram' ) {
       var merged = {
         left: c1,
         right: c2,
@@ -123,7 +111,7 @@
         dist = (dists[c1.key][cur.key] * c1.size + dists[c2.key][cur.key] * c2.size) / (c1.size + c2.size);
       }
       else {
-        if (opts.mode === 'dendrogram')
+        if ( opts.mode === 'dendrogram' )
           dist = distances[opts.distance]( cur.value, c1.value, opts.attributes );
         else
           dist = distances[opts.distance]( cur.value[0], c1.value[0], opts.attributes );
@@ -157,30 +145,26 @@
 
   var getAllChildren = function( root, arr, cy ) {
 
-    if (root) {
+    if ( !root )
+        return;
 
-      if (root.value) {
-        arr.push(root.value);
-      }
-      else {
-        getAllChildren(root.left, arr, cy);
-        getAllChildren(root.right, arr, cy);
-      }
+    if ( root.value ) {
+      arr.push( root.value );
     }
-  };
-
-  var buildRoot = function( leaves, cy ) {
-
-    var str = '';
-    for(var i = 0; i < leaves.length; i++) {
-      str += leaves[i].id();
+    else {
+      if ( root.left )
+        getAllChildren( root.left, arr, cy );
+      if ( root.right )
+        getAllChildren( root.right, arr, cy );
     }
-    var node = cy.add({group:'nodes', data: {id: str}, position:{x:Math.random()*70,y: Math.random()*70}});
   };
 
   var buildDendrogram = function ( root ) {
 
-    if (root.left && root.right) {
+    if ( !root )
+        return '';
+
+    if ( root.left && root.right ) {
 
       var leftStr = buildDendrogram( root.left );
       var rightStr = buildDendrogram( root.right );
@@ -192,7 +176,7 @@
 
       return node.id();
     }
-    else if (root.value) {
+    else if ( root.value ) {
       return root.value.id();
     }
 
@@ -200,39 +184,39 @@
 
   var buildClustersFromTree = function( root, k, cy ) {
 
-    if (!root)
+    if ( !root )
         return [];
 
     var left = [], right = [], leaves = [];
 
-    if (k === 0) {
-      if (root.left)
+    if ( k === 0 ) { // don't cut tree, simply return all nodes as 1 single cluster
+      if ( root.left )
         getAllChildren( root.left, left, cy );
-      if (root.right)
+      if ( root.right )
         getAllChildren( root.right, right, cy );
 
       leaves = left.concat(right);
       return [ cy.collection(leaves) ];
     }
-    else if (k === 1) {
+    else if ( k === 1 ) { // cut at root
 
       if ( root.value ) { // leaf node
         return [ cy.collection( root.value ) ];
       }
       else {
-        if (root.left)
+        if ( root.left )
           getAllChildren( root.left, left, cy );
-        if (root.right)
+        if ( root.right )
           getAllChildren( root.right, right, cy );
 
         return [ cy.collection(left), cy.collection(right) ];
       }
     }
     else {
-      if (root.left)
+      if ( root.left )
         left  = buildClustersFromTree( root.left, k - 1, cy );
-      if (root.right)
-        right = buildClustersFromTree( root.right, k - 1, cy);
+      if ( root.right )
+        right = buildClustersFromTree( root.right, k - 1, cy );
 
       return left.concat(right);
     }
@@ -265,10 +249,10 @@
       mins[n]     = 0;
     }
 
-    // Initialize and calculate the distance between each pair of clusters
+    // Calculate the distance between each pair of clusters
     for ( var i = 0; i < clusters.length; i++ ) {
       for ( var j = 0; j <= i; j++ ) {
-        if (opts.mode === 'dendrogram')
+        if ( opts.mode === 'dendrogram' ) // modes store cluster values differently
           var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value, clusters[j].value, opts.attributes );
         else
           var dist = (i === j) ? Infinity : distances[opts.distance]( clusters[i].value[0], clusters[j].value[0], opts.attributes );
@@ -288,13 +272,15 @@
       merged = mergeClosest( clusters, index, dists, mins, opts );
     }
 
-    if (opts.mode === 'dendrogram') {
+    // Dendrogram mode builds the hierarchy and adds intermediary nodes + edges
+    // in addition to returning the clusters.
+    if ( opts.mode === 'dendrogram' ) {
       var retClusters = buildClustersFromTree( clusters[0], opts.cutoff, cy );
 
-      // Build dendrogram
       buildDendrogram( clusters[0] );
     }
-    else {
+    else { // Regular mode simply returns the clusters
+
       var retClusters = new Array(clusters.length);
       clusters.forEach( function( cluster, i ) {
         // Clean up meta data used for clustering
