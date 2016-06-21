@@ -47,12 +47,12 @@ When every cluster is more than ```threshold``` distance apart, clustering is st
 
 ```js
 cy.elements().hierarchical({
-    mode: "regular",
-    threshold: 25,
+    mode: "regular",                    // extension mode
+    threshold: 25,                      // stopping criterion that affects granularity (#) of clusters
 
-    distance: "euclidean",
-    linkage: "single",
-    attributes: [
+    distance: "euclidean",              // distance metric for measuring the distance between two nodes
+    linkage: "single",                  // linkage criteria for determining the distance between two clusters
+    attributes: [                       // attributes/features used to group nodes
         function(node) {
           return node.position('x');
         },
@@ -66,18 +66,18 @@ cy.elements().hierarchical({
 #### Mode 2: "dendrogram"
 Under the ```dendrogram``` mode, the algorithm returns an array of clusters generated from the data set, and generates a dendrogram of the clusters.
 One may set the ```cutoff``` option to specify the level at which the tree is cut. This option partitions clusters at different precisions.
-For example, in the demo img above, setting ```cutoff = 2``` will return the clusters {D,F,E}, {C}, {A}, {B}. Setting ```cutoff = 1``` will return the clusters {D,F,E,C}, {C}, {A,B}. Setting ```cutoff = 0``` will return a single cluster containing all the nodes.
+For example, in the demo img above, setting ```cutoff = 2``` will return the clusters {D,F,E}, {C}, {A}, {B}. Setting ```cutoff = 1``` will return the clusters {D,F,E,C}, {A,B}. Setting ```cutoff = 0``` will return a single cluster containing all the nodes.
 
 Since the ```dendrogram``` mode generates many additional nodes and edges in order to render the tree, it might not be performant for large data sets. Thus it is recommended to use ```normal``` mode for clustering instead.
 
 ```js
 cy.elements().hierarchical({
-    mode: "dendrogram",
-    cutoff: 2,
+    mode: "dendrogram",                 // extension mode
+    cutoff: 2,                          // stopping criterion that affects granularity (#) of clusters
 
-    distance: "euclidean",
-    linkage: "single",
-    attributes: [
+    distance: "euclidean",              // distance metric for measuring the distance between two nodes
+    linkage: "single",                  // linkage criteria for determining the distance between two clusters
+    attributes: [                       // attributes/features used to group nodes
         function(node) {
           return node.position('x');
         },
@@ -89,6 +89,13 @@ cy.elements().hierarchical({
 ```
 
 ```demo.html``` provides working examples of the 2 different modes using separate data sets.
+
+##### Linkage Types
+```average``` - the distance between two clusters is an average of the differences between the items in the clusters.
+
+```single``` - the distance between clusters is the smallest distance between an item from each cluster.
+
+```complete``` - the distance between clusters is the largest distance between two items in the clusters.
 
 
 ## Publishing instructions
