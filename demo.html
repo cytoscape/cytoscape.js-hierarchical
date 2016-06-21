@@ -7,10 +7,10 @@
 
         <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 
-        <!--<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>-->
+        <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
 
         <!-- for testing with local version of cytoscape.js -->
-        <script src="../cytoscape.js/build/cytoscape.js"></script>
+        <!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
 
         <script src="cytoscape-hierarchical.js"></script>
 
@@ -117,11 +117,6 @@
                 for (var c = 0; c < clusters.length; c++) {
                     clusters[c].style( 'background-color', '#' + Math.floor(Math.random()*16777215).toString(16) );
                 }
-
-                clusters[0].style( 'background-color', '#' + 'db4437' );
-                clusters[1].style( 'background-color', '#' + '0f9d58' );
-                clusters[2].style( 'background-color', '#' + 'f4b400' );
-                clusters[3].style( 'background-color', '#' + '4285f4' );
 
                 if ( options.mode === 'dendrogram' ) {
                     cy.layout({
