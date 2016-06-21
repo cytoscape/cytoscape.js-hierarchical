@@ -260,7 +260,7 @@ debugger
       dists[n]    = [];
       mins[n]     = 0;
     }
-debugger
+
     // Calculate the distance between each pair of clusters
     for ( var i = 0; i < clusters.length; i++ ) {
       for ( var j = 0; j <= i; j++ ) {

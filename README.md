@@ -3,8 +3,9 @@ cytoscape-hierarchical
 
 ![Screenshot of clusters returned from hierarchical clustering algorithm](./demo-img.png?raw=true "Screenshot of clusters returned from hierarchical clustering algorithm")
 
-A Cytoscape.js extension for the hierarchical clustering algorithm
+## Description
 
+A hierarchical clustering algorithm for Cytoscape.js.
 
 ## Dependencies
 
