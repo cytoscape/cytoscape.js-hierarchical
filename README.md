@@ -69,7 +69,7 @@ Under the ```dendrogram``` mode, the algorithm returns an array of clusters gene
 One may set the ```cutoff``` option to specify the level at which the tree is cut. This option partitions clusters at different precisions.
 For example, in the demo img above, setting ```cutoff = 2``` will return the clusters {D,F,E}, {C}, {A}, {B}. Setting ```cutoff = 1``` will return the clusters {D,F,E,C}, {A,B}. Setting ```cutoff = 0``` will return a single cluster containing all the nodes.
 
-Since the ```dendrogram``` mode generates many additional nodes and edges in order to render the tree, it might not be performant for large data sets. Thus it is recommended to use ```normal``` mode for clustering instead.
+Since the ```dendrogram``` mode generates many additional nodes and edges in order to render the tree, it might not be performant for large data sets. Thus it is recommended to use ```regular``` mode for clustering instead.
 
 ```js
 cy.elements().hierarchical({
@@ -92,11 +92,11 @@ cy.elements().hierarchical({
 ```demo.html``` provides working examples of the 2 different modes using separate data sets.
 
 ##### Linkage Types
-```average``` - the distance between two clusters is an average of the differences between the items in the clusters.
+```average``` - the distance between two clusters is an average of the differences between the nodes in the clusters.
 
-```single``` - the distance between clusters is the smallest distance between an item from each cluster.
+```single``` - the distance between clusters is the smallest distance between a node from each cluster.
 
-```complete``` - the distance between clusters is the largest distance between two items in the clusters.
+```complete``` - the distance between clusters is the largest distance between two nodes in the clusters.
 
 
 ## Publishing instructions

@@ -64,7 +64,7 @@
          (opts.mode === 'dendrogram' && clusters.length === 1) ) {
       return false;
     }
-debugger
+
     var c1 = index[minKey];
     var c2 = index[mins[minKey]];
 
@@ -286,9 +286,6 @@ debugger
         }
       }
     }
-    printMatrix(dists);
-
-    debugger;
 
     // Find the closest pair of clusters and merge them into a single cluster.
     // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
