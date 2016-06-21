@@ -277,16 +277,6 @@
       }
     }
 
-    for ( var i = 0; i < clusters.length; i++ ) {
-      for (var j = 0; j < clusters.length; j++) {
-        var dist = dists[i][j];
-
-        if ( dist < dists[i][mins[j]]) {
-          mins[i] = j;
-        }
-      }
-    }
-
     // Find the closest pair of clusters and merge them into a single cluster.
     // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
     var merged = mergeClosest( clusters, index, dists, mins, opts );

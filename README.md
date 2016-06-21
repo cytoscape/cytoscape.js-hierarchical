@@ -60,7 +60,7 @@ cy.elements().hierarchical({
         function(node) {
           return node.position('y');
         }
-      ]
+    ]
 });
 ```
 
