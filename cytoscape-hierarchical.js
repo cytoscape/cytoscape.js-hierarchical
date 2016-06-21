@@ -64,7 +64,7 @@
          (opts.mode === 'dendrogram' && clusters.length === 1) ) {
       return false;
     }
-
+debugger
     var c1 = index[minKey];
     var c2 = index[mins[minKey]];
 
@@ -222,6 +222,18 @@
     }
   };
 
+  var printMatrix = function( M ) { // used for debugging purposes only
+    var n = M.length;
+    for(var i = 0; i < n; i++ ) {
+      var row = '';
+      for ( var j = 0; j < n; j++ ) {
+        row += Math.round(M[i][j]*100)/100 + ' ';
+      }
+      console.log(row);
+    }
+    console.log('');
+  };
+
   var hierarchical = function( options ){
     var cy    = this.cy();
     var nodes = this.nodes();
@@ -248,7 +260,7 @@
       dists[n]    = [];
       mins[n]     = 0;
     }
-
+debugger
     // Calculate the distance between each pair of clusters
     for ( var i = 0; i < clusters.length; i++ ) {
       for ( var j = 0; j <= i; j++ ) {
@@ -264,6 +276,19 @@
         }
       }
     }
+
+    for ( var i = 0; i < clusters.length; i++ ) {
+      for (var j = 0; j < clusters.length; j++) {
+        var dist = dists[i][j];
+
+        if ( dist < dists[i][mins[j]]) {
+          mins[i] = j;
+        }
+      }
+    }
+    printMatrix(dists);
+
+    debugger;
 
     // Find the closest pair of clusters and merge them into a single cluster.
     // Update distances between new cluster and each of the old clusters, and loop until threshold reached.
