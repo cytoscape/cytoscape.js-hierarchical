@@ -15,7 +15,8 @@
       function(node) {
         return node.position('y');
       }
-    ]
+    ],
+    testMode: false
   };
 
   var setOptions = function( opts, options ) {
@@ -159,15 +160,15 @@
     }
   };
 
-  var buildDendrogram = function ( root ) {
+  var buildDendrogram = function ( root, cy ) {
 
     if ( !root )
         return '';
 
     if ( root.left && root.right ) {
 
-      var leftStr = buildDendrogram( root.left );
-      var rightStr = buildDendrogram( root.right );
+      var leftStr = buildDendrogram( root.left, cy );
+      var rightStr = buildDendrogram( root.right, cy );
 
       var node = cy.add({group:'nodes', data: {id: leftStr + ',' + rightStr}});
 
@@ -213,12 +214,17 @@
       }
     }
     else {
-      if ( root.left )
-        left  = buildClustersFromTree( root.left, k - 1, cy );
-      if ( root.right )
-        right = buildClustersFromTree( root.right, k - 1, cy );
+      if ( root.value ) {
+        return [ cy.collection(root.value) ];
+      }
+      else {
+        if ( root.left )
+          left  = buildClustersFromTree( root.left, k - 1, cy );
+        if ( root.right )
+          right = buildClustersFromTree( root.right, k - 1, cy );
 
-      return left.concat(right);
+        return left.concat(right);
+      }
     }
   };
 
@@ -286,10 +292,11 @@
 
     // Dendrogram mode builds the hierarchy and adds intermediary nodes + edges
     // in addition to returning the clusters.
-    if ( opts.mode === 'dendrogram' ) {
+    if ( opts.mode === 'dendrogram') {
       var retClusters = buildClustersFromTree( clusters[0], opts.cutoff, cy );
 
-      buildDendrogram( clusters[0] );
+      if ( !opts.testMode )
+        buildDendrogram( clusters[0], cy );
     }
     else { // Regular mode simply returns the clusters
 

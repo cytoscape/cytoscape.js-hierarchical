@@ -1,0 +1,35 @@
+<!DOCTYPE>
+
+<html>
+
+<head>
+    <title>Tests for hierarchical clustering</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+
+    <!-- for testing with local version of cytoscape.js -->
+    <!-- <script src="../../cytoscape.js/build/cytoscape.js"></script> -->
+
+    <script src="../cytoscape-hierarchical.js"></script>
+
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
+
+</head>
+
+<body>
+    <div id="mocha"></div>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
+    <script>mocha.setup('bdd')</script>
+
+    <!-- loading test files here -->
+    <script src="hierarchical-tests.js"></script>
+
+    <script>
+        mocha.run();
+    </script>
+</body>
+
+</html>
